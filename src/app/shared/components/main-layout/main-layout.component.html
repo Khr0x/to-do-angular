@@ -23,6 +23,12 @@
         <mat-icon>menu</mat-icon>
       </button>
       <span class="spacer"></span>
+      @if (!authService.isLoading() && authService.currentUser()) {
+        <div class="user-info">
+          <span class="user-name">{{ authService.currentUser()?.name }}</span>
+          <span class="user-email">{{ authService.currentUser()?.email }}</span>
+        </div>
+      }
       <button mat-icon-button (click)="logout()" aria-label="Logout">
         <mat-icon>logout</mat-icon>
       </button>

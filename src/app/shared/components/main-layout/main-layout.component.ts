@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '@core/services/auth.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -23,12 +24,12 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './main-layout.component.scss'
 })
 export class MainLayoutComponent {
+  public authService = inject(AuthService);
   isSidenavOpen = signal(true);
 
   navItems = [
     { label: 'Mis Tareas', icon: 'check_circle', route: '/tasks' },
-    { label: 'Completadas', icon: 'task_alt', route: '/completed' },
-    { label: 'Configuración', icon: 'settings', route: '/settings' }
+    { label: 'Completadas', icon: 'task_alt', route: '/completed' }
   ];
 
   toggleSidenav(): void {
@@ -36,7 +37,6 @@ export class MainLayoutComponent {
   }
 
   logout(): void {
-    // TODO: Implement logout logic
-    console.log('Logout clicked');
+    this.authService.logout();
   }
 }

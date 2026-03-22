@@ -1,5 +1,9 @@
 .sidenav-container {
   height: 100vh;
+
+  ::ng-deep .mat-drawer-inner-container {
+    overflow: hidden !important;
+  }
 }
 
 .sidenav {
@@ -21,6 +25,7 @@
 
   mat-nav-list {
     padding-top: 8px;
+    overflow: hidden;
 
     a {
       margin: 4px 8px;
@@ -47,11 +52,33 @@
   .spacer {
     flex: 1 1 auto;
   }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: 8px;
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+
+    .user-email {
+      font-size: 12px;
+      opacity: 0.8;
+      line-height: 1.2;
+    }
+  }
 }
 
 .main-content {
   flex: 1;
   padding: 24px;
-  background-color: var(--mat-sys-surface-container-low);
+  background-color: var(--mat-sys-surface);
   overflow-y: auto;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  margin: 8px;
 }

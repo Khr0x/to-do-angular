@@ -1,9 +1,9 @@
 import { Injectable, signal, inject, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { tap, catchError, throwError } from 'rxjs';
+import { tap, catchError, throwError, switchMap } from 'rxjs';
 import { environment } from '@environments/environment';
-import { LoginCredentials, LoginResponse, User } from '@core/models/auth.model';
+import { LoginCredentials, RegisterCredentials, User } from '@core/models/auth.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,49 +11,66 @@ import { LoginCredentials, LoginResponse, User } from '@core/models/auth.model';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private readonly API_URL = `${environment.apiUrl}/auth`;
+  private readonly API_URL = `${environment.apiUrl}/v1/auth`;
 
-  // Estado reactivo del usuario
   #currentUser = signal<User | null>(null);
+  #isLoading = signal<boolean>(true);
   
-  // Exponemos el usuario como un Signal de solo lectura
   public currentUser = computed(() => this.#currentUser());
   public isAuthenticated = computed(() => !!this.#currentUser());
+  public isLoading = computed(() => this.#isLoading());
 
   constructor() {
     this.checkAuthStatus();
   }
 
   login(credentials: LoginCredentials) {
-    return this.http.post<LoginResponse>(`${this.API_URL}/login`, credentials)
+    return this.http.post<boolean>(`${this.API_URL}/login`, credentials)
       .pipe(
-        tap(res => {
-          localStorage.setItem('token', res.token);
-          this.#currentUser.set(res.user);
-        }),
+        switchMap(() => this.getUserProfile()),
         catchError(err => {
-          console.error('Error en login:', err);
+          this.#currentUser.set(null);
           return throwError(() => err);
         })
       );
   }
 
+  getUserProfile() {
+    return this.http.get<User>(`${this.API_URL}/me`)
+    .pipe(
+      tap(user => this.#currentUser.set(user))
+    );
+  }
+
+  register(data: RegisterCredentials) {
+    return this.http.post<any>(`${this.API_URL}/register`, data);
+  }
+  
+  
+
   logout() {
-    localStorage.removeItem('token');
-    this.#currentUser.set(null);
-    this.router.navigate(['/auth/login']);
+    this.http.post(`${this.API_URL}/logout`, {})
+      .pipe(
+        tap(() => {
+          this.#currentUser.set(null);
+          this.router.navigate(['/auth/login']);
+        }),
+        catchError(() => {
+          this.#currentUser.set(null);
+          this.router.navigate(['/auth/login']);
+          return throwError(() => new Error('Logout failed'));
+        })
+      )
+      .subscribe();
   }
 
   private checkAuthStatus() {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    // Aquí podrías hacer una petición 'me' o 'validate' a tu API
-    // Por ahora, simularemos que recuperamos el usuario si hay token
-    // this.http.get<User>(`${this.API_URL}/me`)...
-  }
-
-  getToken(): string | null {
-    return localStorage.getItem('token');
+    this.getUserProfile().subscribe({
+      next: () => this.#isLoading.set(false),
+      error: () => {
+        this.#currentUser.set(null);
+        this.#isLoading.set(false);
+      }
+    });
   }
 }

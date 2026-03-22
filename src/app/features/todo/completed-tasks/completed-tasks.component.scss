@@ -1,0 +1,222 @@
+.completed-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-section {
+  margin-bottom: 32px;
+
+  mat-card {
+    background-color: var(--mat-sys-surface-container-low);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  mat-card-content {
+    padding: 24px !important;
+  }
+
+  .header-content {
+    .header-info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+
+      .header-icon {
+        font-size: 60px;
+        width: 60px;
+        height: 60px;
+        color: #4caf50;
+      }
+
+      h1 {
+        margin: 0 0 4px 0;
+        font-size: 32px;
+        font-weight: 600;
+        color: var(--mat-sys-on-surface);
+      }
+
+      p {
+        margin: 0;
+        font-size: 16px;
+        color: var(--mat-sys-on-surface-variant);
+      }
+    }
+  }
+}
+
+.completed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.task-card {
+  transition: all 0.2s ease;
+  opacity: 0.9;
+  background-color: var(--mat-sys-surface-container-low);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    opacity: 1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+
+  mat-card-content {
+    padding: 16px !important;
+  }
+
+  .task-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+
+    .check-icon {
+      color: #4caf50;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      margin-top: 4px;
+    }
+
+    .task-info {
+      flex: 1;
+      min-width: 0;
+
+      h3 {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--mat-sys-on-surface);
+        text-decoration: line-through;
+        opacity: 0.8;
+        word-wrap: break-word;
+      }
+
+      .description {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        color: var(--mat-sys-on-surface-variant);
+        line-height: 1.5;
+        opacity: 0.7;
+        word-wrap: break-word;
+      }
+
+      .task-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+
+        .priority-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 12px;
+          border-radius: 16px;
+          font-size: 12px;
+          font-weight: 500;
+          height: auto;
+          min-height: 24px;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+
+          &.alta {
+            background-color: #ffebee;
+            color: #c62828;
+          }
+
+          &.media {
+            background-color: #fff3e0;
+            color: #e65100;
+          }
+
+          &.baja {
+            background-color: #e3f2fd;
+            color: #1565c0;
+          }
+        }
+
+        .date {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 12px;
+          color: var(--mat-sys-on-surface-variant);
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 4px;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  background-color: var(--mat-sys-surface-container-low);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  mat-icon {
+    font-size: 80px;
+    width: 80px;
+    height: 80px;
+    color: var(--mat-sys-on-surface-variant);
+    opacity: 0.3;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface);
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+@media (max-width: 768px) {
+  .header-section {
+    .header-content {
+      .header-info {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  }
+
+  .task-card {
+    .task-content {
+      flex-direction: column;
+      gap: 12px;
+
+      .task-actions {
+        align-self: flex-end;
+      }
+    }
+  }
+}

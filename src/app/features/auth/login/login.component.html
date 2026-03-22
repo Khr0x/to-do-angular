@@ -37,24 +37,28 @@
             <mat-error>La contraseña es requerida</mat-error>
           }
           @if (loginForm.get('password')?.hasError('minlength') && loginForm.get('password')?.touched) {
-            <mat-error>La contraseña debe tener al menos 6 caracteres</mat-error>
+            <mat-error>La contraseña debe tener al menos 8 caracteres</mat-error>
           }
         </mat-form-field>
 
         <button mat-flat-button color="primary" type="submit" class="full-width submit-btn" [disabled]="loginForm.invalid || isLoading()">
           @if (isLoading()) {
-            <mat-spinner diameter="20"></mat-spinner>
-            <span>Iniciando sesión...</span>
+            <ng-container>
+              <mat-spinner diameter="20"></mat-spinner>
+              <span>Iniciando sesión...</span>
+            </ng-container>
           } @else {
-            <mat-icon>login</mat-icon>
-            <span>Iniciar sesión</span>
+            <ng-container>
+              <mat-icon>login</mat-icon>
+              <span>Iniciar sesión</span>
+            </ng-container>
           }
         </button>
       </form>
     </mat-card-content>
 
     <mat-card-actions class="actions-center">
-      <p>¿No tienes una cuenta? <a href="/register">Regístrate aquí</a></p>
+      <p>¿No tienes una cuenta? <a href="/auth/register">Regístrate aquí</a></p>
     </mat-card-actions>
   </mat-card>
 </div>

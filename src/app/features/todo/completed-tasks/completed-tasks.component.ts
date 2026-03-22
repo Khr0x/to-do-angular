@@ -1,42 +1,30 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog } from '@angular/material/dialog';
 import { TaskService } from '@core/services/task.service';
-import { AddTaskDialogComponent } from '../components/add-task-dialog/add-task-dialog.component';
 
 @Component({
-  selector: 'app-tasks',
+  selector: 'app-completed-tasks',
   standalone: true,
   imports: [
     CommonModule,
     MatCardModule,
-    MatButtonModule,
     MatIconModule,
-    MatCheckboxModule,
+    MatButtonModule,
     MatChipsModule,
     MatTooltipModule
   ],
-  templateUrl: './tasks.component.html',
-  styleUrl: './tasks.component.scss'
+  templateUrl: './completed-tasks.component.html',
+  styleUrl: './completed-tasks.component.scss'
 })
-export class TasksComponent {
+export class CompletedTasksComponent {
   public taskService = inject(TaskService);
-  private dialog = inject(MatDialog);
 
-  openAddTaskDialog(): void {
-    this.dialog.open(AddTaskDialogComponent, {
-      width: '500px',
-      disableClose: false
-    });
-  }
-
-  toggleTask(id: string): void {
+  restoreTask(id: string): void {
     this.taskService.toggleTaskStatus(id);
   }
 

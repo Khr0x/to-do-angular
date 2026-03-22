@@ -1,0 +1,39 @@
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 400px;
+  padding: 10px;
+
+  .full-width {
+    width: 100%;
+  }
+
+  .priority-icon {
+    vertical-align: middle;
+    margin-right: 8px;
+    font-size: 20px;
+
+    &.low {
+      color: #2196f3;
+    }
+
+    &.medium {
+      color: #ff9800;
+    }
+
+    &.high {
+      color: #f44336;
+    }
+  }
+}
+
+mat-dialog-actions {
+  gap: 12px;
+}

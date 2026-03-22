@@ -1,31 +1,41 @@
 import { inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { CanActivateFn } from '@angular/router';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
+import { filter, map, take } from 'rxjs';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (authService.isAuthenticated()) {
-    return true;
-  }
+  return toObservable(authService.isLoading).pipe(
+    filter(loading => !loading),
+    take(1),
+    map(() => {
+      if (authService.isAuthenticated()) {
+        return true;
+      }
 
-  router.navigate(['/auth/login'], {
-    queryParams: { returnUrl: state.url }
-  });
-  
-  return false;
+      return router.createUrlTree(['/auth/login'], {
+        queryParams: { returnUrl: state.url }
+      });
+    })
+  );
 };
 
 export const publicGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  
-  if (authService.isAuthenticated()) {
-    router.navigate(['/']);
-    return false;
-  }
 
-  return true;
+  return toObservable(authService.isLoading).pipe(
+    filter(loading => !loading),
+    take(1),
+    map(() => {
+      if (!authService.isAuthenticated()) {
+        return true;
+      }
+
+      return router.createUrlTree(['/']);
+    })
+  );
 };
