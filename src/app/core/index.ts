@@ -1,4 +1,3 @@
-// Core module barrel exports
 export * from './models';
 export * from './services';
 export * from './guards';

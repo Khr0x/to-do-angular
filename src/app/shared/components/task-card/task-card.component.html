@@ -1,0 +1,67 @@
+<mat-card class="task-card">
+  <mat-card-content>
+    <div class="task-content">
+      @if (type === 'pending') {
+        <mat-checkbox
+          [checked]="task.finalizada"
+          (change)="onToggle()"
+          color="primary">
+        </mat-checkbox>
+      } @else {
+        <mat-icon class="check-icon">check_circle</mat-icon>
+      }
+
+      <div class="task-info">
+        <h3 [class.completed]="task.finalizada">{{ task.nombre }}</h3>
+        <div class="task-meta">
+          <mat-chip class="priority-chip" [class]="getPriorityClass()">
+            <mat-icon>{{ getPriorityIcon() }}</mat-icon>
+            {{ getPriorityLabel() }}
+          </mat-chip>
+          <span class="date">
+            <mat-icon>event</mat-icon>
+            @if (type === 'pending') {
+              {{ task.fechaCreacion | date: 'short' }}
+            } @else {
+              Completada: {{ task.fechaActualizacion | date: 'short' }}
+            }
+          </span>
+        </div>
+      </div>
+
+      <div class="task-actions">
+        @if (type === 'pending') {
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="onEdit()"
+            matTooltip="Editar tarea">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="onDelete()"
+            matTooltip="Eliminar tarea">
+            <mat-icon>delete</mat-icon>
+          </button>
+        } @else {
+          <button
+            mat-icon-button
+            color="primary"
+            (click)="onRestore()"
+            matTooltip="Restaurar tarea">
+            <mat-icon>restore</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="onDelete()"
+            matTooltip="Eliminar permanentemente">
+            <mat-icon>delete_forever</mat-icon>
+          </button>
+        }
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,64 @@
+<h2 mat-dialog-title>
+  <mat-icon color="primary">{{ mode === 'add' ? 'add_task' : 'edit' }}</mat-icon>
+  {{ mode === 'add' ? 'Nueva Tarea' : 'Editar Tarea' }}
+</h2>
+
+<mat-dialog-content>
+  @if (loading) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Cargando tarea...</span>
+    </div>
+  } @else {
+    <form [formGroup]="taskForm" class="task-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre de la tarea</mat-label>
+        <input matInput formControlName="nombre" placeholder="Ej: Comprar víveres">
+        <mat-icon matPrefix>title</mat-icon>
+        @if (taskForm.get('nombre')?.hasError('required') && taskForm.get('nombre')?.touched) {
+          <mat-error>El nombre es requerido</mat-error>
+        }
+        @if (taskForm.get('nombre')?.hasError('minlength') && taskForm.get('nombre')?.touched) {
+          <mat-error>El nombre debe tener al menos 3 caracteres</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Prioridad</mat-label>
+        <mat-select formControlName="prioridad">
+          <mat-option value="baja">
+            <mat-icon class="priority-icon low">low_priority</mat-icon>
+            Baja
+          </mat-option>
+          <mat-option value="media">
+            <mat-icon class="priority-icon medium">drag_handle</mat-icon>
+            Media
+          </mat-option>
+          <mat-option value="alta">
+            <mat-icon class="priority-icon high">priority_high</mat-icon>
+            Alta
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>flag</mat-icon>
+      </mat-form-field>
+
+      <mat-checkbox formControlName="finalizada">Finalizada</mat-checkbox>
+    </form>
+  }
+</mat-dialog-content>
+
+@if (!loading) {
+  <mat-dialog-actions align="end">
+    <button mat-stroked-button (click)="cancel()">
+      Cancelar
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="save()"
+      [disabled]="taskForm.invalid">
+      <mat-icon>{{ mode === 'add' ? 'add' : 'save' }}</mat-icon>
+      {{ mode === 'add' ? 'Agregar' : 'Guardar' }}
+    </button>
+  </mat-dialog-actions>
+}

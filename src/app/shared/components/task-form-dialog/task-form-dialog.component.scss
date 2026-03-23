@@ -4,6 +4,15 @@ h2[mat-dialog-title] {
   gap: 8px;
 }
 
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px;
+  min-width: 300px;
+}
+
 .task-form {
   display: flex;
   flex-direction: column;

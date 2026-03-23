@@ -1,36 +1,50 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Task, CreateTaskDto, TaskPriority } from '../models/task.model';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Task, CreateTaskDto, UpdateTaskDto, TaskPriority, PaginatedResponse } from '../models/task.model';
+import { environment } from '@environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TaskService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/v1/todo`;
+
   private tasks = signal<Task[]>([]);
+  
+  public paginationInfo = signal<{
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }>({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 0
+  });
 
-  // Tareas pendientes
-  public pendingTasks = computed(() => 
-    this.tasks().filter(task => !task.completed)
+  public pendingTasks = computed(() =>
+    this.tasks().filter(task => !task.finalizada)
   );
 
-  // Tareas completadas
-  public completedTasks = computed(() => 
-    this.tasks().filter(task => task.completed)
+  public completedTasks = computed(() =>
+    this.tasks().filter(task => task.finalizada)
   );
 
-  // Tareas por prioridad
-  public highPriorityTasks = computed(() => 
-    this.pendingTasks().filter(task => task.priority === 'Alta')
+  public highPriorityTasks = computed(() =>
+    this.pendingTasks().filter(task => task.prioridad === 'alta')
   );
 
-  public mediumPriorityTasks = computed(() => 
-    this.pendingTasks().filter(task => task.priority === 'Media')
+  public mediumPriorityTasks = computed(() =>
+    this.pendingTasks().filter(task => task.prioridad === 'media')
   );
 
-  public lowPriorityTasks = computed(() => 
-    this.pendingTasks().filter(task => task.priority === 'Baja')
+  public lowPriorityTasks = computed(() =>
+    this.pendingTasks().filter(task => task.prioridad === 'baja')
   );
 
-  // Contadores
   public totalTasks = computed(() => this.tasks().length);
   public pendingCount = computed(() => this.pendingTasks().length);
   public completedCount = computed(() => this.completedTasks().length);
@@ -39,94 +53,135 @@ export class TaskService {
     this.loadTasks();
   }
 
-  private loadTasks(): void {
-    const storedTasks = localStorage.getItem('tasks');
-    if (storedTasks) {
-      try {
-        const parsed = JSON.parse(storedTasks);
-        this.tasks.set(parsed.map((task: any) => ({
-          ...task,
-          createdAt: new Date(task.createdAt),
-          completedAt: task.completedAt ? new Date(task.completedAt) : undefined
+  loadTasks(
+    filters?: {
+      page?: string;
+      limit?: string;
+      prioridad?: string;
+      finalizada?: string;
+  }): void {
+    const params = new URLSearchParams();
+    if (filters?.page) params.append('page', filters.page);
+    if (filters?.limit) params.append('limit', filters.limit);
+    if (filters?.prioridad) params.append('prioridad', filters.prioridad);
+    if (filters?.finalizada) params.append('finalizada', filters.finalizada);
+
+    const queryString = params.toString();
+    const url = queryString ? `${this.apiUrl}/list?${queryString}` : `${this.apiUrl}/list`;
+
+    this.http.get<PaginatedResponse<Task>>(url).subscribe({
+      next: (response) => {
+        if (response.meta.total !== undefined) {
+          this.paginationInfo.set({
+            total: response.meta.total,
+            page: response.meta.page,
+            limit: response.meta.limit,
+            totalPages: response.meta.totalPages
+          });
+        }
+        
+        const tasks = response.data || [];
+        this.tasks.set(tasks.map((t: Task) => ({
+          ...t
         })));
-      } catch (error) {
+      },
+      error: (error) => {
         console.error('Error loading tasks:', error);
+        this.tasks.set([]);
       }
-    }
+    });
   }
 
-  private saveTasks(): void {
-    localStorage.setItem('tasks', JSON.stringify(this.tasks()));
+  createTask(dto: CreateTaskDto): void {
+    this.http.post<Task>(`${this.apiUrl}/create`, dto).subscribe({
+      next: () => {
+        this.loadTasks();
+      },
+      error: (error) => {
+        console.error('Error creating task:');
+      }
+    });
   }
 
-  createTask(dto: CreateTaskDto): Task {
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      title: dto.title,
-      description: dto.description,
-      priority: dto.priority,
-      completed: false,
-      createdAt: new Date()
-    };
-
-    this.tasks.update(tasks => [...tasks, newTask]);
-    this.saveTasks();
-    return newTask;
-  }
-
-  updateTask(id: string, updates: Partial<Task>): void {
-    this.tasks.update(tasks => 
-      tasks.map(task => 
-        task.id === id ? { ...task, ...updates } : task
-      )
-    );
-    this.saveTasks();
+  updateTask(id: string, updates: UpdateTaskDto): void {
+    this.http.patch<Task>(`${this.apiUrl}/update/${id}`, updates).subscribe({
+      next: () => {
+        this.loadTasks();
+      },
+      error: (error) => {
+        console.error('Error updating task:');
+      }
+    });
   }
 
   toggleTaskStatus(id: string): void {
-    this.tasks.update(tasks => 
-      tasks.map(task => {
-        if (task.id === id) {
-          return {
-            ...task,
-            completed: !task.completed,
-            completedAt: !task.completed ? new Date() : undefined
-          };
-        }
-        return task;
-      })
-    );
-    this.saveTasks();
+    const task = this.tasks().find(t => t.id === id);
+    if (!task) return;
+
+    this.http.patch<Task>(`${this.apiUrl}/update/${id}`, {
+      finalizada: !task.finalizada
+    }).subscribe({
+      next: () => {
+         this.loadTasks();
+      },
+      error: (error) => {
+        console.error('Error toggling task status:');
+      }
+    });
   }
 
   deleteTask(id: string): void {
-    this.tasks.update(tasks => tasks.filter(task => task.id !== id));
-    this.saveTasks();
+    this.http.delete<void>(`${this.apiUrl}/list/${id}`).subscribe({
+      next: () => {
+         this.loadTasks();
+      },
+      error: (error) => {
+        console.error('Error deleting task:', error);
+      }
+    });
   }
 
-  getPriorityColor(priority: TaskPriority): string {
-    switch (priority) {
-      case 'Alta':
+  getTaskById(id: string): Observable<Task> {
+    return this.http.get<Task>(`${this.apiUrl}/list/${id}`);
+  }
+
+  getPriorityColor(prioridad: TaskPriority): string {
+    switch (prioridad) {
+      case 'alta':
         return 'warn';
-      case 'Media':
+      case 'media':
         return 'accent';
-      case 'Baja':
+      case 'baja':
         return 'primary';
       default:
         return 'primary';
     }
   }
 
-  getPriorityIcon(priority: TaskPriority): string {
-    switch (priority) {
-      case 'Alta':
+  getPriorityIcon(prioridad: TaskPriority): string {
+    switch (prioridad) {
+      case 'alta':
         return 'priority_high';
-      case 'Media':
+      case 'media':
         return 'drag_handle';
-      case 'Baja':
+      case 'baja':
         return 'low_priority';
       default:
         return 'drag_handle';
     }
   }
+
+  formatPriorityLabel(prioridad: TaskPriority): string {
+    switch (prioridad) {
+      case 'alta':
+        return 'Alta';
+      case 'media':
+        return 'Media';
+      case 'baja':
+        return 'Baja';
+      default:
+        return prioridad;
+    }
+  }
+
 }

@@ -1,17 +1,32 @@
-export type TaskPriority = 'Baja' | 'Media' | 'Alta';
+export type TaskPriority = 'baja' | 'media' | 'alta';
 
 export interface Task {
   id: string;
-  title: string;
-  description?: string;
-  priority: TaskPriority;
-  completed: boolean;
-  createdAt: Date;
-  completedAt?: Date;
+  nombre: string;
+  prioridad: TaskPriority;
+  finalizada: boolean;
+  fechaCreacion: Date;
+  fechaActualizacion: Date;
 }
 
 export interface CreateTaskDto {
-  title: string;
-  description?: string;
-  priority: TaskPriority;
+  nombre: string;
+  prioridad: TaskPriority;
+  finalizada: boolean;
+}
+
+export interface UpdateTaskDto {
+  nombre?: string;
+  prioridad?: TaskPriority;
+  finalizada?: boolean;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

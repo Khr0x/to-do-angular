@@ -69,6 +69,40 @@
   }
 }
 
+.filters-section {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: var(--mat-sys-surface-container-low);
+  border-radius: 8px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 150px;
+    max-width: 200px;
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+
+    button {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      mat-icon {
+        margin: 0;
+      }
+    }
+  }
+}
+
 .tasks-section {
   display: flex;
   flex-direction: column;
@@ -245,7 +279,6 @@
   }
 }
 
-// Estado vacío
 .empty-state {
   text-align: center;
   padding: 48px 24px;
@@ -281,10 +314,18 @@
   }
 }
 
-// Responsive
 @media (max-width: 768px) {
   .stats-section {
     grid-template-columns: 1fr;
+  }
+
+  .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+
+    mat-form-field {
+      max-width: none;
+    }
   }
 
   .task-card {
@@ -297,4 +338,11 @@
       }
     }
   }
+}
+
+.paginator {
+  margin-top: 32px;
+  background-color: var(--mat-sys-surface-container-low);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }

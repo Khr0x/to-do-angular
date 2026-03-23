@@ -50,6 +50,40 @@
     </button>
   </div>
 
+  <!-- Filtros -->
+  <div class="filters-section">
+    <mat-form-field appearance="outline">
+      <mat-label>Prioridad</mat-label>
+      <mat-select [value]="prioridad()" (selectionChange)="prioridad.set($event.value)">
+        <mat-option value="">Todas</mat-option>
+        <mat-option value="alta">Alta</mat-option>
+        <mat-option value="media">Media</mat-option>
+        <mat-option value="baja">Baja</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Estado</mat-label>
+      <mat-select [value]="finalizada()" (selectionChange)="finalizada.set($event.value)">
+        <mat-option value="">Todas</mat-option>
+        <mat-option value="false">Pendientes</mat-option>
+        <mat-option value="true">Completadas</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="filter-actions">
+      <button mat-flat-button color="primary" (click)="applyFilters()">
+        <mat-icon>filter_alt</mat-icon>
+        Aplicar Filtros
+      </button>
+
+      <button mat-stroked-button (click)="clearFilters()">
+        <mat-icon>clear</mat-icon>
+        Limpiar
+      </button>
+    </div>
+  </div>
+
   <!-- Lista de tareas por prioridad -->
   <div class="tasks-section">
     <!-- Tareas Alta Prioridad -->
@@ -62,41 +96,13 @@
         </h2>
         <div class="tasks-list">
           @for (task of taskService.highPriorityTasks(); track task.id) {
-            <mat-card class="task-card">
-              <mat-card-content>
-                <div class="task-content">
-                  <mat-checkbox 
-                    [checked]="task.completed"
-                    (change)="toggleTask(task.id)"
-                    color="primary">
-                  </mat-checkbox>
-                  
-                  <div class="task-info">
-                    <h3 [class.completed]="task.completed">{{ task.title }}</h3>
-                    @if (task.description) {
-                      <p class="description">{{ task.description }}</p>
-                    }
-                    <div class="task-meta">
-                      <mat-chip class="priority-chip high">
-                        <mat-icon>{{ taskService.getPriorityIcon(task.priority) }}</mat-icon>
-                        {{ task.priority }}
-                      </mat-chip>
-                      <span class="date">{{ task.createdAt | date: 'short' }}</span>
-                    </div>
-                  </div>
-
-                  <div class="task-actions">
-                    <button 
-                      mat-icon-button 
-                      color="warn"
-                      (click)="deleteTask(task.id)"
-                      matTooltip="Eliminar tarea">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
+            <app-task-card
+              [task]="task"
+              type="pending"
+              (toggle)="toggleTask($event)"
+              (edit)="openEditTaskDialog($event)"
+              (delete)="deleteTask($event)">
+            </app-task-card>
           }
         </div>
       </div>
@@ -112,41 +118,13 @@
         </h2>
         <div class="tasks-list">
           @for (task of taskService.mediumPriorityTasks(); track task.id) {
-            <mat-card class="task-card">
-              <mat-card-content>
-                <div class="task-content">
-                  <mat-checkbox 
-                    [checked]="task.completed"
-                    (change)="toggleTask(task.id)"
-                    color="primary">
-                  </mat-checkbox>
-                  
-                  <div class="task-info">
-                    <h3 [class.completed]="task.completed">{{ task.title }}</h3>
-                    @if (task.description) {
-                      <p class="description">{{ task.description }}</p>
-                    }
-                    <div class="task-meta">
-                      <mat-chip class="priority-chip medium">
-                        <mat-icon>{{ taskService.getPriorityIcon(task.priority) }}</mat-icon>
-                        {{ task.priority }}
-                      </mat-chip>
-                      <span class="date">{{ task.createdAt | date: 'short' }}</span>
-                    </div>
-                  </div>
-
-                  <div class="task-actions">
-                    <button 
-                      mat-icon-button 
-                      color="warn"
-                      (click)="deleteTask(task.id)"
-                      matTooltip="Eliminar tarea">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
+            <app-task-card
+              [task]="task"
+              type="pending"
+              (toggle)="toggleTask($event)"
+              (edit)="openEditTaskDialog($event)"
+              (delete)="deleteTask($event)">
+            </app-task-card>
           }
         </div>
       </div>
@@ -162,41 +140,13 @@
         </h2>
         <div class="tasks-list">
           @for (task of taskService.lowPriorityTasks(); track task.id) {
-            <mat-card class="task-card">
-              <mat-card-content>
-                <div class="task-content">
-                  <mat-checkbox 
-                    [checked]="task.completed"
-                    (change)="toggleTask(task.id)"
-                    color="primary">
-                  </mat-checkbox>
-                  
-                  <div class="task-info">
-                    <h3 [class.completed]="task.completed">{{ task.title }}</h3>
-                    @if (task.description) {
-                      <p class="description">{{ task.description }}</p>
-                    }
-                    <div class="task-meta">
-                      <mat-chip class="priority-chip low">
-                        <mat-icon>{{ taskService.getPriorityIcon(task.priority) }}</mat-icon>
-                        {{ task.priority }}
-                      </mat-chip>
-                      <span class="date">{{ task.createdAt | date: 'short' }}</span>
-                    </div>
-                  </div>
-
-                  <div class="task-actions">
-                    <button 
-                      mat-icon-button 
-                      color="warn"
-                      (click)="deleteTask(task.id)"
-                      matTooltip="Eliminar tarea">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
+            <app-task-card
+              [task]="task"
+              type="pending"
+              (toggle)="toggleTask($event)"
+              (edit)="openEditTaskDialog($event)"
+              (delete)="deleteTask($event)">
+            </app-task-card>
           }
         </div>
       </div>
@@ -213,4 +163,17 @@
       </mat-card>
     }
   </div>
+
+  <!-- Paginador -->
+  @if (taskService.paginationInfo().total > 0) {
+    <mat-paginator
+      [length]="taskService.paginationInfo().total"
+      [pageSize]="taskService.paginationInfo().limit"
+      [pageIndex]="taskService.paginationInfo().page - 1"
+      [pageSizeOptions]="pageSizeOptions"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+      class="paginator">
+    </mat-paginator>
+  }
 </div>

@@ -17,50 +17,26 @@
 
   @if (taskService.completedTasks().length > 0) {
     <div class="completed-list">
-      @for (task of taskService.completedTasks(); track task.id) {
-        <mat-card class="task-card">
-          <mat-card-content>
-            <div class="task-content">
-              <mat-icon class="check-icon">check_circle</mat-icon>
-              
-              <div class="task-info">
-                <h3>{{ task.title }}</h3>
-                @if (task.description) {
-                  <p class="description">{{ task.description }}</p>
-                }
-                <div class="task-meta">
-                  <mat-chip class="priority-chip" [class]="task.priority.toLowerCase()">
-                    <mat-icon>{{ taskService.getPriorityIcon(task.priority) }}</mat-icon>
-                    {{ task.priority }}
-                  </mat-chip>
-                  <span class="date">
-                    <mat-icon>event</mat-icon>
-                    Completada: {{ task.completedAt | date: 'short' }}
-                  </span>
-                </div>
-              </div>
-
-              <div class="task-actions">
-                <button 
-                  mat-icon-button 
-                  color="primary"
-                  (click)="restoreTask(task.id)"
-                  matTooltip="Restaurar tarea">
-                  <mat-icon>restore</mat-icon>
-                </button>
-                <button 
-                  mat-icon-button 
-                  color="warn"
-                  (click)="deleteTask(task.id)"
-                  matTooltip="Eliminar permanentemente">
-                  <mat-icon>delete_forever</mat-icon>
-                </button>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
+      @for (task of paginatedTasks(); track task.id) {
+        <app-task-card
+          [task]="task"
+          type="completed"
+          (restore)="restoreTask($event)"
+          (delete)="deleteTask($event)">
+        </app-task-card>
       }
     </div>
+
+    <!-- Paginador -->
+    <mat-paginator
+      [length]="taskService.completedCount()"
+      [pageSize]="pageSize()"
+      [pageIndex]="pageIndex()"
+      [pageSizeOptions]="pageSizeOptions"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+      class="paginator">
+    </mat-paginator>
   } @else {
     <mat-card class="empty-state">
       <mat-card-content>
